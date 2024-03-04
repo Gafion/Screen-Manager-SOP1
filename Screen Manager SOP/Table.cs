@@ -72,17 +72,17 @@ namespace Screen_Manager_SOP
         private List<List<string>> ConvertUsersToRows(List<User> users)
         {
             return users.Select(user => new List<string>
-    {
-        user.Id.ToString(),
-        user.FirstName,
-        user.LastName,
-        user.EmailAddress,
-        user.PhoneNumber,
-        user.Address,
-        user.Title,
-        "Delete", // Placeholder for delete action
-        "Edit"    // Placeholder for edit action
-    }).ToList();
+            {
+                user.Id.ToString(),
+                user.FirstName,
+                user.LastName,
+                user.EmailAddress,
+                user.PhoneNumber,
+                user.Address,
+                user.Title,
+                "Delete", // Placeholder for delete action
+                "Edit"    // Placeholder for edit action
+            }).ToList();
         }
 
         public void Draw()
@@ -199,5 +199,22 @@ namespace Screen_Manager_SOP
             }
         }
                
+        
+        // Method to draw the table based on the list of users
+        void DrawTable(List<User> users)
+        {
+            // Clear the previous table or refresh the screen if necessary
+            Console.Clear();
+
+            // Logic to draw the table headers
+
+            // Logic to draw each user in the list
+            foreach (var user in users)
+            {
+                // Draw the user details in the table
+            }
+
+            // Any additional logic to finalize the table drawing
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Screen_Manager_SOP;
+﻿using System.Text;
+using Screen_Manager_SOP;
 
 namespace ScreenManager
 {
@@ -12,6 +13,13 @@ namespace ScreenManager
         {
             Text = text;
             TextColor = textColor;
+        }
+
+        // Method to capture user input
+        public void CaptureInput()
+        {
+            Console.SetCursorPosition(Left + 1, Top);
+            Text = Console.ReadLine();
         }
 
         public void Draw()

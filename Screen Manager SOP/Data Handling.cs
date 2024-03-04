@@ -35,7 +35,22 @@ namespace Screen_Manager_SOP
             return users;
         }
 
-        // Additional methods to add, update, delete users
+        // Method to add a new user
+        public void AddUser(string firstName, string lastName, string emailAddress, string phoneNumber, string address, string title)
+        {
+            User newUser = new User
+            {
+                Id = users.Max(u => u.Id) + 1, // Assign a new ID based on the highest current ID
+                FirstName = firstName,
+                LastName = lastName,
+                EmailAddress = emailAddress,
+                PhoneNumber = phoneNumber,
+                Address = address,
+                Title = title,
+            };
+
+            users.Add(newUser);
+        }
     }
 }
 
