@@ -23,7 +23,7 @@ Table table = new Table(5, headers, users, 0, 6, 4, 4); // Pass the list of user
 table.IsFocused = true; // Start with the table focused
 table.Draw();
 
-// ... existing code to set up the UI ...
+// kommentar
 
 bool isRunning = true;
 while (isRunning)
