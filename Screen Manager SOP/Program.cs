@@ -61,56 +61,7 @@ while (isRunning)
             case ConsoleKey.Enter:
                 if (button.IsFocused)
                 {
-                    int boxWidth = 55; // Adjust width for newUserBox
-                    int boxHeight = Math.Min(25, Console.WindowHeight); // Ensure box height does not exceed console height
-                    int boxLeft = (Console.WindowWidth - boxWidth) / 2;
-                    int boxTop = (Console.WindowHeight - boxHeight) / 2;
-
-                    Box newUserBox = new Box(boxLeft, boxTop, boxWidth, boxHeight, ConsoleColor.White, "New User");
-                    newUserBox.Draw(); // Draw newUserBox first
-
-                    // Define the starting position for the TextFields inside newUserBox
-                    int textFieldWidth = newUserBox.Width / 2 - 4; // Half the width of newUserBox minus padding
-                    int textFieldHeight = 3; // Height of each TextField including border lines
-                    int leftHalfWidth = newUserBox.Width / 2; // Width of the left half of the newUserBox
-                    int textFieldLeft = newUserBox.Left + (leftHalfWidth - textFieldWidth) / 2;
-                    int textFieldTop = newUserBox.Top + 5; // Start 5 characters below the top border of newUserBox
-
-                    // Create and draw the TextFields
-                    string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address" };
-                    TextField[] textFields = new TextField[labels.Length];
-
-                    for (int i = 0; i < labels.Length; i++)
-                    {
-                        // Calculate the top position for the current TextField
-                        int currentTextFieldTop = textFieldTop + i * (textFieldHeight + 1); // +1 for spacing between TextFields
-
-                        // Create the TextField with the label as initial text
-                        TextField textField = new TextField(textFieldLeft, currentTextFieldTop, textFieldWidth, labels[i]);
-                        textField.Draw(); // Draw the TextField
-                    }
-
-                    // Adjustments for small boxes to be within newUserBox
-                    int smallBoxWidth = 22;
-                    int smallBoxHeight = 3;
-
-                    // Position small boxes within the right half of newUserBox
-                    int smallBoxLeft = newUserBox.Left + 3 * boxWidth / 4 - smallBoxWidth / 2;
-
-                    // Calculate vertical spacing for small boxes
-                    int spaceAvailable = boxHeight - (5 * smallBoxHeight); // Use actual newUserBox height
-                    int spaceBetweenBoxes = spaceAvailable / 6;
-                    int smallBoxTop = newUserBox.Top + spaceBetweenBoxes +3;
-
-                    // Draw the 5 smaller boxes
-                    for (int i = 0; i < 5; i++)
-                    {
-                        int currentBoxTop = smallBoxTop + i * (smallBoxHeight + spaceBetweenBoxes);
-                        Box smallBox = new Box(smallBoxLeft, currentBoxTop, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
-                        smallBox.Draw();
-                    }
-
-                    Console.ReadKey(true); // Wait for any key to close newUserBox
+                    NewUserBox();
                 }
                 break;
             case ConsoleKey.Escape:
@@ -124,6 +75,60 @@ while (isRunning)
         button.Draw();
         table.Draw();
     }
+}
+
+void NewUserBox()
+{
+    int boxWidth = 55; // Adjust width for newUserBox
+    int boxHeight = Math.Min(25, Console.WindowHeight); // Ensure box height does not exceed console height
+    int boxLeft = (Console.WindowWidth - boxWidth) / 2;
+    int boxTop = (Console.WindowHeight - boxHeight) / 2;
+
+    Box newUserBox = new Box(boxLeft, boxTop, boxWidth, boxHeight, ConsoleColor.White, "New User");
+    newUserBox.Draw(); // Draw newUserBox first
+
+    // Define the starting position for the TextFields inside newUserBox
+    int textFieldWidth = newUserBox.Width / 2 - 4; // Half the width of newUserBox minus padding
+    int textFieldHeight = 3; // Height of each TextField including border lines
+    int leftHalfWidth = newUserBox.Width / 2; // Width of the left half of the newUserBox
+    int textFieldLeft = newUserBox.Left + (leftHalfWidth / 2) - 2;
+    int textFieldTop = newUserBox.Top + 5; // Start 5 characters below the top border of newUserBox
+
+    // Create and draw the TextFields
+    string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address" };
+    TextField[] textFields = new TextField[labels.Length];
+
+    for (int i = 0; i < labels.Length; i++)
+    {
+        // Calculate the top position for the current TextField
+        int currentTextFieldTop = textFieldTop + i * (textFieldHeight + 1); // +1 for spacing between TextFields
+
+        // Create the TextField with the label as initial text
+        TextField textField = new TextField(textFieldLeft, currentTextFieldTop, textFieldWidth, labels[i]);
+        textField.Draw(); // Draw the TextField
+    }
+
+    // Adjustments for small boxes to be within newUserBox
+    int smallBoxWidth = 22;
+    int smallBoxHeight = 3;
+
+    // Position small boxes within the right half of newUserBox
+    int smallBoxLeft = newUserBox.Left + 3 * boxWidth / 4 - smallBoxWidth / 2;
+
+    // Calculate vertical spacing for small boxes
+    int spaceAvailable = boxHeight - (5 * smallBoxHeight); // Use actual newUserBox height
+    int spaceBetweenBoxes = spaceAvailable / 6;
+    int smallBoxTop = newUserBox.Top + spaceBetweenBoxes + 3;
+
+    // Draw the 5 smaller boxes
+    for (int i = 0; i < 5; i++)
+    {
+        int currentBoxTop = smallBoxTop + i * (smallBoxHeight + spaceBetweenBoxes);
+        Box smallBox = new Box(smallBoxLeft, currentBoxTop, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
+        smallBox.Draw();
+    }
+
+    Console.ReadKey(true); // Wait for any key to close newUserBox
 }
 
 
