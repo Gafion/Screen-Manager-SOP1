@@ -14,12 +14,8 @@ namespace Screen_Manager_SOP
         private List<int> columnWidths;
         private int marginLeft = 4;
         private int marginRight = 4;
-        private int marginTop = 5;
-        private int marginBottom = 6;
         private int activeRow; // Index of the currently active (focused) row
         private int activeColumn; // Index of the currently active (focused) column
-        private int deleteColumnIndex;
-        private int editColumnIndex;
 
 
         public Table(int top, List<string> headers, List<User> users, int marginTop, int marginBottom, int marginLeft, int marginRight)
@@ -41,7 +37,7 @@ namespace Screen_Manager_SOP
             var widths = new List<int>();
             var totalFixedWidth = 0;
 
-            // Initial calculation based on content
+            // Initial calculation based on content for all columns
             for (int i = 0; i < headers.Count; i++)
             {
                 int maxWidth = headers[i].Length;
@@ -56,15 +52,25 @@ namespace Screen_Manager_SOP
                 totalFixedWidth += maxWidth;
             }
 
+            // Subtract the additional width for columns 0, 7, and 8 from the available width
+            availableWidth -= 12; // 4 units for each of the three columns
+
             // Adjust widths to fill the available space
             int extraSpace = availableWidth - totalFixedWidth;
-            int addPerColumn = extraSpace / headers.Count;
-            int remainder = extraSpace % headers.Count;
+            int columnsToAdjust = 6; // Columns 2 to 7
+            int addPerColumn = extraSpace / columnsToAdjust;
+            int remainder = extraSpace % columnsToAdjust;
 
-            for (int i = 0; i < widths.Count; i++)
+            // Distribute extra space to columns 2 to 7
+            for (int i = 1; i <= 6; i++) // Assuming columns are 0-indexed, adjust for your case
             {
-                widths[i] += addPerColumn + (i < remainder ? 1 : 0);
+                widths[i] += addPerColumn + (i - 1 < remainder ? 1 : 0); // Adjust for 0-index
             }
+
+            // Add +4 to the widths of columns 0, 7, and 8
+            widths[0] += 4; // Column 1 (0-indexed)
+            if (widths.Count > 7) widths[7] += 4; // Column 8 (0-indexed)
+            if (widths.Count > 8) widths[8] += 4; // Column 9 (0-indexed)
 
             return widths;
         }
@@ -97,21 +103,21 @@ namespace Screen_Manager_SOP
         private void DrawBorderTop()
         {
             // Draw the top border of the table
-            string topBorder = "┌" + string.Join("┬", columnWidths.Select(w => new string('─', w))) + "┐";
+            string topBorder = Box.TopLeft + string.Join(Box.TopMiddle, columnWidths.Select(w => new string(Box.Horizontal, w))) + Box.TopRight;
             ScreenObject.InsertAt(Left, Top, topBorder, ConsoleColor.White);
         }
 
         private void DrawHeaders()
         {
             // Draw the headers with padding
-            string headerLine = "│" + string.Join("│", headers.Select((header, index) => header.PadRight(columnWidths[index]))) + "│";
+            string headerLine = Box.Vertical + string.Join(Box.Middle, headers.Select((header, index) => header.PadRight(columnWidths[index]))) + Box.Vertical;
             ScreenObject.InsertAt(Left, Top + 1, headerLine, ConsoleColor.White);
         }
 
         private void DrawHeadersBottom()
         {
             // Draw a border beneath the headers
-            string headerBottomBorder = "├" + string.Join("┼", columnWidths.Select(w => new string('─', w))) + "┤";
+            string headerBottomBorder = Box.LeftMiddle + string.Join(Box.Cross, columnWidths.Select(w => new string(Box.Horizontal, w))) + Box.RightMiddle;
             ScreenObject.InsertAt(Left, Top + 2, headerBottomBorder, ConsoleColor.White); // Adjusted Top + 2 to draw below headers
         }
 
@@ -121,7 +127,7 @@ namespace Screen_Manager_SOP
             {
                 int cellLeftPosition = Left; // Start position for the first cell
 
-                ScreenObject.InsertAt(cellLeftPosition, Top + 3 + rowIndex, "│", ConsoleColor.Gray);
+                ScreenObject.InsertAt(cellLeftPosition, Top + 3 + rowIndex, Box.Middle.ToString(), ConsoleColor.Gray);
                 cellLeftPosition += 1; // Move past the separator
 
                 var row = rowIndex < rows.Count ? rows[rowIndex] : new List<string>(new string[headers.Count]);
@@ -144,26 +150,50 @@ namespace Screen_Manager_SOP
                     // Draw the vertical separator after the cell content, except after the last cell
                     if (colIndex < headers.Count - 1)
                     {
-                        ScreenObject.InsertAt(cellLeftPosition - 1, Top + 3 + rowIndex, "│", ConsoleColor.Gray);
+                        ScreenObject.InsertAt(cellLeftPosition - 1, Top + 3 + rowIndex, Box.Middle.ToString(), ConsoleColor.Gray);
                     }
                 }
 
                 // Draw the vertical line at the end of the row
-                ScreenObject.InsertAt(cellLeftPosition - 1, Top + 3 + rowIndex, "│", ConsoleColor.Gray);
+                ScreenObject.InsertAt(cellLeftPosition - 1, Top + 3 + rowIndex, Box.Middle.ToString(), ConsoleColor.Gray);
             }
+        }
+
+        private void RedrawCell(int rowIndex, int colIndex, ConsoleColor color)
+        {
+            // Calculate the left position of the cell
+            int cellLeft = Left + columnWidths.Take(colIndex).Sum() + colIndex + 1;
+            // Calculate the top position of the cell
+            int cellTop = Top + 3 + rowIndex;
+            // Get the width of the cell
+            int cellWidth = columnWidths[colIndex];
+            // Assuming each cell is one line high
+            int cellHeight = 1;
+
+            // Clear the cell area
+            ClearArea(cellLeft, cellTop, cellWidth, cellHeight);
+
+            // Retrieve the content of the cell
+            string cellContent = rows[rowIndex][colIndex].PadRight(cellWidth);
+
+            // Redraw the cell with the new color
+            ScreenObject.InsertAt(cellLeft, cellTop, cellContent, color);
         }
 
         private void DrawBorderBottom()
         {
             // Draw the bottom border of the table at the correct position
-            string bottomBorder = "└" + string.Join("┴", columnWidths.Select(w => new string('─', w))) + "┘";
+            string bottomBorder = Box.BottomLeft + string.Join(Box.BottomMiddle, columnWidths.Select(w => new string(Box.Horizontal, w))) + Box.BottomRight;
             // The bottom border should be drawn after the last row
             ScreenObject.InsertAt(Left, Top + Height - 1, bottomBorder, ConsoleColor.White);
         }
 
         public void ToggleActiveColumn()
         {
-            // Assuming "Delete" is the second last and "Edit" is the last column
+            // Save the previous active column
+            int previousActiveColumn = activeColumn;
+
+            // Toggle the active column
             if (activeColumn == headers.Count - 2) // If "Delete" is active
             {
                 activeColumn = headers.Count - 1; // Make "Edit" active
@@ -172,6 +202,12 @@ namespace Screen_Manager_SOP
             {
                 activeColumn = headers.Count - 2; // Make "Delete" active
             }
+
+            // Redraw the previously active cell with the default color
+            RedrawCell(activeRow, previousActiveColumn, ConsoleColor.Gray);
+
+            // Redraw the newly active cell with the highlight color
+            RedrawCell(activeRow, activeColumn, ConsoleColor.Red);
         }
 
         public void SetActiveRow(int index)
@@ -186,7 +222,14 @@ namespace Screen_Manager_SOP
         {
             if (activeRow > 0)
             {
+                // Redraw the current active cell with the default color
+                RedrawCell(activeRow, activeColumn, ConsoleColor.Gray);
+
+                // Update the active row index
                 activeRow--;
+
+                // Redraw the new active cell with the highlight color
+                RedrawCell(activeRow, activeColumn, ConsoleColor.Red);
             }
         }
 
@@ -195,7 +238,14 @@ namespace Screen_Manager_SOP
         {
             if (activeRow < rows.Count - 1)
             {
+                // Redraw the current active cell with the default color
+                RedrawCell(activeRow, activeColumn, ConsoleColor.Gray);
+
+                // Update the active row index
                 activeRow++;
+
+                // Redraw the new active cell with the highlight color
+                RedrawCell(activeRow, activeColumn, ConsoleColor.Red);
             }
         }
 

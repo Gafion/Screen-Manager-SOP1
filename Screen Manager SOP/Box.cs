@@ -9,6 +9,18 @@ namespace Screen_Manager_SOP
 {
     public class Box : ScreenObject
     {
+        public const char TopLeft = '┌';
+        public const char TopRight = '┐';
+        public const char BottomLeft = '└';
+        public const char BottomRight = '┘';
+        public const char Horizontal = '─';
+        public const char Vertical = '│';
+        public const char LeftMiddle = '├';
+        public const char RightMiddle = '┤';
+        public const char TopMiddle = '┬';
+        public const char BottomMiddle = '┴';
+        public const char Cross = '┼';
+        public const char Middle = '│'; // Same as Vertical, added for completeness
         public ConsoleColor Color { get; private set; }
         public string Title { get; set; }
 
@@ -30,24 +42,10 @@ namespace Screen_Manager_SOP
 
         public void Draw()
         {
-            // Define all border characters
-            char topLeft = '┌';
-            char topRight = '┐';
-            char bottomLeft = '└';
-            char bottomRight = '┘';
-            char horizontal = '─';
-            char vertical = '│';
-            char leftMiddle = '├';
-            char rightMiddle = '┤';
-            char topMiddle = '┬';
-            char bottomMiddle = '┴';
-            char cross = '┼';
-            char middle = '│'; // Same as vertical, included for completeness
-
             ClearArea();
 
             // Draw top border
-            ScreenObject.InsertAt(Left, Top, topLeft + new string(horizontal, Width - 2) + topRight, Color);
+            ScreenObject.InsertAt(Left, Top, Box.TopLeft + new string(Box.Horizontal, Width - 2) + Box.TopRight, Color);
 
             // Draw the title text
             if (!string.IsNullOrEmpty(Title))
@@ -60,13 +58,13 @@ namespace Screen_Manager_SOP
             // Draw middle sections
             for (int i = 1; i < Height - 1; i++)
             {
-                ScreenObject.InsertAt(Left, Top + i, vertical.ToString(), Color);
+                ScreenObject.InsertAt(Left, Top + i, Box.Vertical.ToString(), Color);
                 // If you want to include middle cross sections, you can modify this loop
-                ScreenObject.InsertAt(Left + Width - 1, Top + i, vertical.ToString(), Color);
+                ScreenObject.InsertAt(Left + Width - 1, Top + i, Box.Vertical.ToString(), Color);
             }
 
             // Draw bottom border
-            ScreenObject.InsertAt(Left, Top + Height - 1, bottomLeft + new string(horizontal, Width - 2) + bottomRight, Color);
+            ScreenObject.InsertAt(Left, Top + Height - 1, Box.BottomLeft + new string(Box.Horizontal, Width - 2) + Box.BottomRight, Color);
         }
 
         

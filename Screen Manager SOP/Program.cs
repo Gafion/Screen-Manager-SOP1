@@ -13,7 +13,7 @@ internal class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         int cWidth = Console.WindowWidth, cHeight = Console.WindowHeight;
 
-
+        Console.CursorVisible = false;
         Box box = new(0, 0, cWidth, cHeight, ConsoleColor.White, "CRUapp");
         box.Draw();
 
@@ -24,7 +24,7 @@ internal class Program
         List<User> users = userRepository.GetAllUsers();
         List<string> headers = new()
         {
-            "ID", "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title", "Delete", "Edit"
+            "ID", "First Name", "Last Name", "Email Address", "Phone Nr", "Address", "Title", "Delete", "Edit"
         };
         Table table = new(5, headers, users, 0, 6, 4, 4); // Pass the list of users to the table
         table.IsFocused = true; // Start with the table focused
@@ -67,11 +67,15 @@ internal class Program
                         {
                             table.IsFocused = false;
                             button.IsFocused = true;
+                            table.Draw();
+                            button.Draw();
                         }
                         else
                         {
                             table.IsFocused = true;
                             button.IsFocused = false;
+                            table.Draw();
+                            button.Draw();
                         }
                         anythingChanged = true;
                         break;
@@ -88,7 +92,8 @@ internal class Program
                 }
                 if (anythingChanged)
                 {
-                    RedrawUI();
+                    //RedrawUI();
+                    button.Draw();
                     anythingChanged = false;
                 }
                 
@@ -97,6 +102,7 @@ internal class Program
 
         void NewUserBox()
         {
+            Console.CursorVisible = true;
             int boxWidth = 55; // Adjust width for newUserBox
             int boxHeight = Math.Min(30, Console.WindowHeight); // Ensure box height does not exceed console height
             int boxLeft = (Console.WindowWidth - boxWidth) / 2;
@@ -206,6 +212,8 @@ internal class Program
             // Redraw the table to show the updated list of users
             users = userRepository.GetAllUsers();
             table.UpdateDataSource( users );
+            Console.CursorVisible = false;
+            RedrawUI();
         }
 
         //Method to redraw the UI
