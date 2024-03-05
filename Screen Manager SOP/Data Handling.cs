@@ -9,12 +9,12 @@ namespace Screen_Manager_SOP
     public class User
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string EmailAddress { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Address { get; set; }
-        public string Title { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string EmailAddress { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
     }
     public class UserRepository
     {
@@ -45,6 +45,18 @@ namespace Screen_Manager_SOP
             };
 
             users.Add(newUser);
+        }
+
+        public void RemoveUser(int id)
+        {
+            // Find the user with the given ID
+            User? userToRemove = users.Find(u => u.Id == id);
+
+            // If a user with the given ID is found, remove them from the list
+            if (userToRemove != null)
+            {
+                users.Remove(userToRemove);
+            }
         }
     }
 }

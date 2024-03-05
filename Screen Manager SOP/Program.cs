@@ -3,32 +3,36 @@ using Screen_Manager_SOP;
 using ScreenManager;
 
 
+
 internal class Program
 {
+
     static UserRepository userRepository = new();
     private static void Main(string[] args)
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
         int cWidth = Console.WindowWidth, cHeight = Console.WindowHeight;
 
 
-        Box box = new Box(0, 0, cWidth, cHeight, ConsoleColor.White, "CRUapp");
+        Box box = new(0, 0, cWidth, cHeight, ConsoleColor.White, "CRUapp");
         box.Draw();
 
-        Button button = new Button(15, 3, "New User");
+        Button button = new(15, 3, "New User");
         button.IsFocused = false; // Button is not focused initially
         button.Draw();
 
         List<User> users = userRepository.GetAllUsers();
-        List<string> headers = new List<string>
+        List<string> headers = new()
         {
             "ID", "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title", "Delete", "Edit"
         };
-        Table table = new Table(5, headers, users, 0, 6, 4, 4); // Pass the list of users to the table
+        Table table = new(5, headers, users, 0, 6, 4, 4); // Pass the list of users to the table
         table.IsFocused = true; // Start with the table focused
         table.Draw();
 
 
         bool isRunning = true;
+        bool anythingChanged = false;
         while (isRunning)
         {
             if (Console.KeyAvailable)
@@ -41,13 +45,22 @@ internal class Program
                         if (table.IsFocused)
                         {
                             table.ToggleActiveColumn();
+                            anythingChanged = true;
                         }
                         break;
                     case ConsoleKey.UpArrow:
-                        if (table.IsFocused) table.MoveActiveRowUp();
+                        if (table.IsFocused)
+                        {
+                            table.MoveActiveRowUp();
+                            anythingChanged = true;
+                        }
                         break;
                     case ConsoleKey.DownArrow:
-                        if (table.IsFocused) table.MoveActiveRowDown();
+                        if (table.IsFocused)
+                        {
+                            table.MoveActiveRowDown();
+                            anythingChanged = true;
+                        }
                         break;
                     case ConsoleKey.Tab:
                         if (table.IsFocused)
@@ -60,18 +73,25 @@ internal class Program
                             table.IsFocused = true;
                             button.IsFocused = false;
                         }
+                        anythingChanged = true;
                         break;
                     case ConsoleKey.Enter:
                         if (button.IsFocused)
                         {
                             NewUserBox();
+                            anythingChanged = true;
                         }
                         break;
                     case ConsoleKey.Escape:
                         isRunning = false; // Exit the loop and close the application
                         break;
                 }
-                RedrawUI();
+                if (anythingChanged)
+                {
+                    RedrawUI();
+                    anythingChanged = false;
+                }
+                
             }
         }
 
@@ -93,7 +113,7 @@ internal class Program
             int textFieldTop = newUserBox.Top + 5; // Start 5 characters below the top border of newUserBox
 
             // Create and draw the TextFields
-            string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address"};
+            string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title" };
             _ = new TextField[labels.Length];
 
             for (int i = 0; i < labels.Length; i++)
@@ -118,16 +138,34 @@ internal class Program
             int spaceBetweenBoxes = spaceAvailable / 7;
             int smallBoxTop = newUserBox.Top + spaceBetweenBoxes + 3;
 
-            // Array to store user inputs
-            string[] userInputs = new string[labels.Length];
-
-            // Draw the 5 smaller boxes and create the corresponding TextFields for input
-            TextField[] inputFields = new TextField[5]; // Assuming 5 input fields corresponding to the small boxes
-            for (int i = 0; i < 5; i++)
+            // Draw the 6 smaller boxes
+            for (int i = 0; i < 6; i++)
             {
                 int currentBoxTop = smallBoxTop + i * (smallBoxHeight + spaceBetweenBoxes);
                 Box smallBox = new Box(smallBoxLeft, currentBoxTop, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
                 smallBox.Draw();
+
+                // Check if it's the last small box
+                if (i == 5)
+                {
+                    // Calculate the position for the "˅" symbol
+                    int arrowLeft = smallBoxLeft + smallBoxWidth - 3; // Position the arrow right after the last small box
+                    int arrowTop = currentBoxTop + (smallBoxHeight / 2); // Vertically center the arrow within the small box
+
+                    // Set the cursor position and draw the "˅" symbol
+                    Console.SetCursorPosition(arrowLeft, arrowTop);
+                    Console.Write("˅");
+                }
+            }
+
+            // Array to store user inputs
+            string[] userInputs = new string[labels.Length];
+
+            // Create the corresponding TextFields for input
+            TextField[] inputFields = new TextField[5]; // Assuming 5 input fields corresponding to the small boxes
+            for (int i = 0; i < 5; i++)
+            {
+                int currentBoxTop = smallBoxTop + i * (smallBoxHeight + spaceBetweenBoxes);
 
                 // Adjust the TextField position to be inside or next to the small box
                 int textFieldLeftForSmallBox = smallBoxLeft + 1; // Position the TextField inside the small box
@@ -138,7 +176,6 @@ internal class Program
                 inputFields[i] = new TextField(textFieldLeftForSmallBox, textFieldTopForSmallBox, textFieldWidthForSmallBox, "");
             }
 
-            // Capture input for each TextField
             for (int input = 0; input < inputFields.Length; input++)
             {
                 inputFields[input].Draw(); // Ensure the TextField is drawn before capturing input
@@ -146,19 +183,8 @@ internal class Program
                 userInputs[input] = inputFields[input].Text; // Store the input in the array
             }
 
-            // Calculate the top position for the new TextField and small box
-            int newElementTop = smallBoxTop + 5 * (smallBoxHeight + spaceBetweenBoxes) + spaceBetweenBoxes;
-
-            // Create and draw the new TextField for "Title"
-            TextField titleTextField = new TextField(textFieldLeft, newElementTop, textFieldWidth, "Title");
-            titleTextField.Draw();
-
-            // Create and draw the new small box below the existing ones
-            Box newSmallBox = new Box(smallBoxLeft, newElementTop + textFieldHeight + spaceBetweenBoxes, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
-            newSmallBox.Draw();
-
             // Position for the "Title" ComboBox, placed below the last TextField
-            int comboBoxTop = textFieldTop + (labels.Length - 1) * (textFieldHeight + 1);
+            int comboBoxTop = textFieldTop + (labels.Length - 1) * (textFieldHeight + 1) - 1;
 
             // Create and draw the ComboBox for "Title"
             List<string> titles = new List<string> { "Dev", "DevOps", "UX", "Support", "CEO" };
