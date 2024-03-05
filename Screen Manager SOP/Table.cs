@@ -9,17 +9,17 @@ namespace Screen_Manager_SOP
     internal class Table : ScreenObject
     {
         public bool IsFocused { get; set; }
-        private readonly List<string> headers;
-        private readonly List<List<string>> rows;
-        private readonly List<int> columnWidths;
-        private readonly int marginLeft = 4;
-        private readonly int marginRight = 4;
-        private readonly int marginTop = 5;
-        private readonly int marginBottom = 6;
+        private List<string> headers;
+        private List<List<string>> rows;
+        private List<int> columnWidths;
+        private int marginLeft = 4;
+        private int marginRight = 4;
+        private int marginTop = 5;
+        private int marginBottom = 6;
         private int activeRow; // Index of the currently active (focused) row
         private int activeColumn; // Index of the currently active (focused) column
-        private readonly int deleteColumnIndex;
-        private readonly int editColumnIndex;
+        private int deleteColumnIndex;
+        private int editColumnIndex;
 
 
         public Table(int top, List<string> headers, List<User> users, int marginTop, int marginBottom, int marginLeft, int marginRight)
@@ -198,23 +198,12 @@ namespace Screen_Manager_SOP
                 activeRow++;
             }
         }
-               
-        
-        // Method to draw the table based on the list of users
-        void DrawTable(List<User> users)
+
+        public void UpdateDataSource(List<User> newUsers)
         {
-            // Clear the previous table or refresh the screen if necessary
-            Console.Clear();
-
-            // Logic to draw the table headers
-
-            // Logic to draw each user in the list
-            foreach (var user in users)
-            {
-                // Draw the user details in the table
-            }
-
-            // Any additional logic to finalize the table drawing
+            this.rows = ConvertUsersToRows(newUsers); // Update the rows with the new user data
+                                                      
         }
+
     }
 }

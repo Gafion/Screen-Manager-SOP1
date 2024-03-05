@@ -20,14 +20,13 @@ internal class Program
 
         List<User> users = userRepository.GetAllUsers();
         List<string> headers = new List<string>
-{
-    "ID", "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title", "Delete", "Edit"
-};
+        {
+            "ID", "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title", "Delete", "Edit"
+        };
         Table table = new Table(5, headers, users, 0, 6, 4, 4); // Pass the list of users to the table
         table.IsFocused = true; // Start with the table focused
         table.Draw();
 
-        // kommentar
 
         bool isRunning = true;
         while (isRunning)
@@ -72,12 +71,7 @@ internal class Program
                         isRunning = false; // Exit the loop and close the application
                         break;
                 }
-
-                // Redraw the UI elements to reflect the updated state
-                Console.Clear(); // Clear the console to redraw the UI
-                box.Draw();
-                button.Draw();
-                table.Draw();
+                RedrawUI();
             }
         }
 
@@ -100,7 +94,7 @@ internal class Program
 
             // Create and draw the TextFields
             string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address" };
-            TextField[] textFields = new TextField[labels.Length];
+            _ = new TextField[labels.Length];
 
             for (int i = 0; i < labels.Length; i++)
             {
@@ -164,8 +158,16 @@ internal class Program
 
             // Redraw the table to show the updated list of users
             users = userRepository.GetAllUsers();
-            Table table = new Table(5, headers, users, 0, 6, 4, 4);
-            table.Draw();
+            table.UpdateDataSource( users );
+        }
+
+        //Method to redraw the UI
+        void RedrawUI()
+        {
+            Console.Clear(); // Clear the console to redraw the UI
+            box.Draw();
+            button.Draw();
+            table.Draw(); // This will now draw the updated table with the new user
         }
     }
 }

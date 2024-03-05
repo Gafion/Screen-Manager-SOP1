@@ -15,8 +15,6 @@ namespace Screen_Manager_SOP
         public string PhoneNumber { get; set; }
         public string Address { get; set; }
         public string Title { get; set; }
-
-        // Constructor and any necessary methods
     }
     public class UserRepository
     {
@@ -24,10 +22,7 @@ namespace Screen_Manager_SOP
 
         public UserRepository()
         {
-            // Initialize with some dummy data
-            users.Add(new User { Id = 1, FirstName = "Alice", LastName = "Johnson", EmailAddress = "alice@example.com", PhoneNumber = "123-456-7890", Address = "123 Main St", Title = "Developer" });
-            users.Add(new User { Id = 2, FirstName = "Bob", LastName = "Smith", EmailAddress = "bob@example.com", PhoneNumber = "098-765-4321", Address = "456 Elm St", Title = "Manager" });
-            // Add more users as needed
+           
         }
 
         public List<User> GetAllUsers()
@@ -35,7 +30,6 @@ namespace Screen_Manager_SOP
             return users;
         }
 
-        // Method to add a new user
         public void AddUser(string firstName, string lastName, string emailAddress, string phoneNumber, string address, string title)
         {
             User newUser = new User
