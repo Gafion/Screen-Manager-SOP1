@@ -22,7 +22,7 @@ namespace Screen_Manager_SOP
 
         public UserRepository()
         {
-           
+            
         }
 
         public List<User> GetAllUsers()
@@ -32,9 +32,10 @@ namespace Screen_Manager_SOP
 
         public void AddUser(string firstName, string lastName, string emailAddress, string phoneNumber, string address, string title)
         {
+            int newId = users.Any() ? users.Max(u => u.Id) + 1 : 1; // Assign a new ID based on the highest current ID
             User newUser = new User
             {
-                Id = users.Max(u => u.Id) + 1, // Assign a new ID based on the highest current ID
+                Id = newId,
                 FirstName = firstName,
                 LastName = lastName,
                 EmailAddress = emailAddress,

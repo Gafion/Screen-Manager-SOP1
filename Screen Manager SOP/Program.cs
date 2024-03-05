@@ -78,7 +78,7 @@ internal class Program
         void NewUserBox()
         {
             int boxWidth = 55; // Adjust width for newUserBox
-            int boxHeight = Math.Min(25, Console.WindowHeight); // Ensure box height does not exceed console height
+            int boxHeight = Math.Min(30, Console.WindowHeight); // Ensure box height does not exceed console height
             int boxLeft = (Console.WindowWidth - boxWidth) / 2;
             int boxTop = (Console.WindowHeight - boxHeight) / 2;
 
@@ -93,7 +93,7 @@ internal class Program
             int textFieldTop = newUserBox.Top + 5; // Start 5 characters below the top border of newUserBox
 
             // Create and draw the TextFields
-            string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address" };
+            string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address"};
             _ = new TextField[labels.Length];
 
             for (int i = 0; i < labels.Length; i++)
@@ -114,8 +114,8 @@ internal class Program
             int smallBoxLeft = newUserBox.Left + 3 * boxWidth / 4 - smallBoxWidth / 2;
 
             // Calculate vertical spacing for small boxes
-            int spaceAvailable = boxHeight - 5 * smallBoxHeight; // Use actual newUserBox height
-            int spaceBetweenBoxes = spaceAvailable / 6;
+            int spaceAvailable = boxHeight - 6 * smallBoxHeight; // Use actual newUserBox height
+            int spaceBetweenBoxes = spaceAvailable / 7;
             int smallBoxTop = newUserBox.Top + spaceBetweenBoxes + 3;
 
             // Array to store user inputs
@@ -146,14 +146,35 @@ internal class Program
                 userInputs[input] = inputFields[input].Text; // Store the input in the array
             }
 
+            // Calculate the top position for the new TextField and small box
+            int newElementTop = smallBoxTop + 5 * (smallBoxHeight + spaceBetweenBoxes) + spaceBetweenBoxes;
+
+            // Create and draw the new TextField for "Title"
+            TextField titleTextField = new TextField(textFieldLeft, newElementTop, textFieldWidth, "Title");
+            titleTextField.Draw();
+
+            // Create and draw the new small box below the existing ones
+            Box newSmallBox = new Box(smallBoxLeft, newElementTop + textFieldHeight + spaceBetweenBoxes, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
+            newSmallBox.Draw();
+
+            // Position for the "Title" ComboBox, placed below the last TextField
+            int comboBoxTop = textFieldTop + (labels.Length - 1) * (textFieldHeight + 1);
+
+            // Create and draw the ComboBox for "Title"
+            List<string> titles = new List<string> { "Dev", "DevOps", "UX", "Support", "CEO" };
+            ComboBox titleComboBox = new ComboBox(smallBoxLeft, comboBoxTop, smallBoxWidth, titles);
+            titleComboBox.Draw();
+            titleComboBox.CaptureInput();
+            string selectedTitle = titleComboBox.SelectedOption;
+
             // After capturing all inputs, add the new user to the UserRepository
             userRepository.AddUser(
                 userInputs[0], // FirstName
                 userInputs[1], // LastName
                 userInputs[2], // EmailAddress
                 userInputs[3], // PhoneNumber
-                userInputs[4],
-                "Default"// Address
+                userInputs[4], // Address
+                selectedTitle  // Title
             );
 
             // Redraw the table to show the updated list of users
