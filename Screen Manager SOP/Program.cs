@@ -1,6 +1,8 @@
-﻿using System.Reflection.PortableExecutable;
+﻿using System.Reflection.Emit;
+using System.Reflection.PortableExecutable;
 using Screen_Manager_SOP;
 using ScreenManager;
+using System.Linq;
 
 
 
@@ -17,17 +19,21 @@ internal class Program
         Box box = new(0, 0, cWidth, cHeight, ConsoleColor.White, "CRUapp");
         box.Draw();
 
-        Button button = new(15, 3, "New User");
-        button.IsFocused = false; // Button is not focused initially
+        Button button = new(Console.WindowWidth - 15 - 2, 1, 15, 3, "New User")
+        {
+            IsFocused = false // Button is not focused initially
+        };
         button.Draw();
 
         List<User> users = userRepository.GetAllUsers();
-        List<string> headers = new()
-        {
+        List<string> headers =
+        [
             "ID", "First Name", "Last Name", "Email Address", "Phone Nr", "Address", "Title", "Delete", "Edit"
-        };
-        Table table = new(5, headers, users, 0, 6, 4, 4); // Pass the list of users to the table
-        table.IsFocused = true; // Start with the table focused
+        ];
+        Table table = new(5, headers, users, 0, 6, 4, 4)
+        {
+            IsFocused = true // Start with the table focused
+        }; // Pass the list of users to the table
         table.Draw();
 
 
@@ -211,10 +217,11 @@ internal class Program
 
             // Redraw the table to show the updated list of users
             users = userRepository.GetAllUsers();
-            table.UpdateDataSource( users );
+            table.UpdateDataSource(users);
             Console.CursorVisible = false;
             RedrawUI();
         }
+
 
         //Method to redraw the UI
         void RedrawUI()

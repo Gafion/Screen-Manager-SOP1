@@ -8,41 +8,17 @@ namespace Screen_Manager_SOP
 {
     public class ScreenObject
     {
-        private int left;
-        private int top;
-        private int width;
-        private int height;
-
-        public int Left
-        {
-            get => left;
-            set => left = Math.Max(0, value); // Ensure Left is non-negative
-        }
-
-        public int Top
-        {
-            get => top;
-            set => top = Math.Max(0, value); // Ensure Top is non-negative
-        }
-
-        public int Width
-        {
-            get => width;
-            protected set => width = Math.Max(1, value); // Ensure Width is positive
-        }
-
-        public int Height
-        {
-            get => height;
-            protected set => height = Math.Max(1, value); // Ensure Height is positive
-        }
+        public int Left { get; set; }
+        public int Top { get; set; }
+        public int Width { get; protected set; }
+        public int Height { get; protected set; }
 
         public ScreenObject(int left, int top, int width, int height)
         {
-            Left = left;
-            Top = top;
-            Width = width;
-            Height = height;
+            Left = Math.Max(0, left);
+            Top = Math.Max(0, top);
+            Width = Math.Max(1, width);
+            Height = Math.Max(1, height);
         }
 
         public static void ClearArea(int left, int top, int width, int height)

@@ -10,40 +10,30 @@ namespace Screen_Manager_SOP
     {
         public bool IsFocused { get; set; }
         public string Label { get; private set; }
-        public ConsoleColor TextColor { get; private set; }
-        public ConsoleColor BackgroundColor { get; private set; }
+        public ConsoleColor TextColor { get; } = ConsoleColor.White;
+        public ConsoleColor BackgroundColor { get; } = ConsoleColor.White;
 
         // Constructor that positions the button with a top margin of 1 and a right side margin of 2
-        public Button(int width, int height, string label,
-                      ConsoleColor textColor = ConsoleColor.White,
-                      ConsoleColor backgroundColor = ConsoleColor.White,
-                      int topMargin = 1, int rightMargin = 2) // Separate margins for top and right
-            : base(Console.WindowWidth - width - rightMargin, topMargin, width, height)
+        public Button(int left, int top, int width, int height, string label)
+            : base(left, top, width, height)
         {
             Label = label;
-            TextColor = textColor;
-            BackgroundColor = backgroundColor;
         }
 
         public void Draw()
         {
-            ConsoleColor originalColor = TextColor;
-            TextColor = IsFocused ? ConsoleColor.Red : originalColor; // Change color if focused
-
-            // Draw the button's box (optional, if you want a border around the button)
-            Box buttonBox = new Box(Left, Top, Width, Height, BackgroundColor);
-            buttonBox.Draw();
+            // Draw the button's box
+            new Box(Left, Top, Width, Height, BackgroundColor).Draw();            
 
             // Calculate the position to center the label text within the button
             int centeredLeft = Left + (Width - Label.Length) / 2;
             int centeredTop = Top + Height / 2;
 
+            // Change text color if the button is focused
+            ConsoleColor currentColor = IsFocused ? ConsoleColor.Red : TextColor;
+
             // Draw the label text
-            ScreenObject.InsertAt(centeredLeft, centeredTop, Label, TextColor);
-
-            TextColor = originalColor; // Reset color after drawing
+            InsertAt(centeredLeft, centeredTop, Label, currentColor);
         }
-
-        
     }
 }
