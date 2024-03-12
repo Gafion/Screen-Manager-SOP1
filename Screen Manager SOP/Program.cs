@@ -3,25 +3,26 @@ using System.Reflection.PortableExecutable;
 using Screen_Manager_SOP;
 using ScreenManager;
 using System.Linq;
-
+using System.ComponentModel.Design.Serialization;
 
 
 internal class Program
 {
-
-    static UserRepository userRepository = new();
-    private static void Main(string[] args)
+    static readonly UserRepository userRepository = new();
+    private static void Main()
     {
+        const int BorderWidth = 2;
+        const int NewUserButtonRightOffset = 15;
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         int cWidth = Console.WindowWidth, cHeight = Console.WindowHeight;
 
         Console.CursorVisible = false;
-        Box box = new(0, 0, cWidth, cHeight, ConsoleColor.White, "CRUapp");
+        Box box = new(0, 0, cWidth, cHeight, ConsoleColor.White);
         box.Draw();
 
-        Button button = new(Console.WindowWidth - 15 - 2, 1, 15, 3, "New User")
+        Button button = new(Console.WindowWidth - NewUserButtonRightOffset - BorderWidth, 1, 15, 3, "New User")
         {
-            IsFocused = false // Button is not focused initially
+            IsFocused = true
         };
         button.Draw();
 
@@ -32,8 +33,8 @@ internal class Program
         ];
         Table table = new(5, headers, users, 0, 6, 4, 4)
         {
-            IsFocused = true // Start with the table focused
-        }; // Pass the list of users to the table
+            IsFocused = false
+        };
         table.Draw();
 
 
@@ -75,6 +76,7 @@ internal class Program
                             button.IsFocused = true;
                             table.Draw();
                             button.Draw();
+                            CheckUsersAndAdjustFocus();
                         }
                         else
                         {
@@ -82,6 +84,7 @@ internal class Program
                             button.IsFocused = false;
                             table.Draw();
                             button.Draw();
+                            CheckUsersAndAdjustFocus();
                         }
                         anythingChanged = true;
                         break;
@@ -89,16 +92,37 @@ internal class Program
                         if (button.IsFocused)
                         {
                             NewUserBox();
+                            /*_ = new DialogBox(
+                                (Console.WindowWidth - 55) / 2,
+                                (Console.WindowHeight - Math.Min(30, Console.WindowHeight)) / 2,
+                                55,
+                                Math.Min(30, Console.WindowHeight),
+                                ConsoleColor.White);*/
                             anythingChanged = true;
+                        }
+                        if (table.IsFocused && table.activeColumn == table.headers.IndexOf("Delete"))
+                        {
+                            // Get the ID of the user to delete from the focused row
+                            int userIdToDelete = Convert.ToInt32(users[table.activeRow].Id);
+                            userRepository.RemoveUser(userIdToDelete);
+
+                            // Update the table's data source to reflect the deletion
+                            users = userRepository.GetAllUsers();
+                            table.UpdateDataSource(users);
+                            table.AdjustActiveRowAfterDeletion();
+                            table.Draw();
+                            anythingChanged = true;
+
+                            CheckUsersAndAdjustFocus();
                         }
                         break;
                     case ConsoleKey.Escape:
+                        Console.Clear();
                         isRunning = false; // Exit the loop and close the application
                         break;
                 }
                 if (anythingChanged)
                 {
-                    //RedrawUI();
                     button.Draw();
                     anythingChanged = false;
                 }
@@ -109,12 +133,12 @@ internal class Program
         void NewUserBox()
         {
             Console.CursorVisible = true;
-            int boxWidth = 55; // Adjust width for newUserBox
+            const int boxWidth = 55; // Adjust width for newUserBox
             int boxHeight = Math.Min(30, Console.WindowHeight); // Ensure box height does not exceed console height
             int boxLeft = (Console.WindowWidth - boxWidth) / 2;
             int boxTop = (Console.WindowHeight - boxHeight) / 2;
 
-            Box newUserBox = new Box(boxLeft, boxTop, boxWidth, boxHeight, ConsoleColor.White, "New User");
+            Box newUserBox = new(boxLeft, boxTop, boxWidth, boxHeight, ConsoleColor.White);
             newUserBox.Draw(); // Draw newUserBox first
 
             // Define the starting position for the TextFields inside newUserBox
@@ -125,7 +149,7 @@ internal class Program
             int textFieldTop = newUserBox.Top + 5; // Start 5 characters below the top border of newUserBox
 
             // Create and draw the TextFields
-            string[] labels = { "First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title" };
+            string[] labels = ["First Name", "Last Name", "Email Adr", "Phone Nr", "Address", "Title"];
             _ = new TextField[labels.Length];
 
             for (int i = 0; i < labels.Length; i++)
@@ -134,7 +158,7 @@ internal class Program
                 int currentTextFieldTop = textFieldTop + i * (textFieldHeight + 1); // +1 for spacing between TextFields
 
                 // Create the TextField with the label as initial text
-                TextField textField = new TextField(textFieldLeft, currentTextFieldTop, textFieldWidth, labels[i]);
+                TextField textField = new(textFieldLeft, currentTextFieldTop, textFieldWidth, labels[i]);
                 textField.Draw(); // Draw the TextField
             }
 
@@ -154,7 +178,7 @@ internal class Program
             for (int i = 0; i < 6; i++)
             {
                 int currentBoxTop = smallBoxTop + i * (smallBoxHeight + spaceBetweenBoxes);
-                Box smallBox = new Box(smallBoxLeft, currentBoxTop, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
+                Box smallBox = new(smallBoxLeft, currentBoxTop, smallBoxWidth, smallBoxHeight, ConsoleColor.White);
                 smallBox.Draw();
 
                 // Check if it's the last small box
@@ -169,6 +193,9 @@ internal class Program
                     Console.Write("˅");
                 }
             }
+
+            // draw OK and cancel button here
+
 
             // Array to store user inputs
             string[] userInputs = new string[labels.Length];
@@ -185,7 +212,7 @@ internal class Program
                 int textFieldWidthForSmallBox = smallBoxWidth - 2; // Subtract 2 for padding on both sides
 
                 // Create a TextField for user input within the small box
-                inputFields[i] = new TextField(textFieldLeftForSmallBox, textFieldTopForSmallBox, textFieldWidthForSmallBox, "");
+                inputFields[i] = new(textFieldLeftForSmallBox, textFieldTopForSmallBox, textFieldWidthForSmallBox, "");
             }
 
             for (int input = 0; input < inputFields.Length; input++)
@@ -195,15 +222,19 @@ internal class Program
                 userInputs[input] = inputFields[input].Text; // Store the input in the array
             }
 
+            Console.CursorVisible = false;
+
             // Position for the "Title" ComboBox, placed below the last TextField
             int comboBoxTop = textFieldTop + (labels.Length - 1) * (textFieldHeight + 1) - 1;
 
             // Create and draw the ComboBox for "Title"
-            List<string> titles = new List<string> { "Dev", "DevOps", "UX", "Support", "CEO" };
-            ComboBox titleComboBox = new ComboBox(smallBoxLeft, comboBoxTop, smallBoxWidth, titles);
+            List<string> titles = ["Dev", "DevOps", "UX", "Support", "CEO"];
+            ComboBox titleComboBox = new(smallBoxLeft, comboBoxTop, smallBoxWidth, titles);
             titleComboBox.Draw();
             titleComboBox.CaptureInput();
             string selectedTitle = titleComboBox.SelectedOption;
+
+            // Check if OK button or Cancel button
 
             // After capturing all inputs, add the new user to the UserRepository
             userRepository.AddUser(
@@ -218,12 +249,29 @@ internal class Program
             // Redraw the table to show the updated list of users
             users = userRepository.GetAllUsers();
             table.UpdateDataSource(users);
-            Console.CursorVisible = false;
             RedrawUI();
         }
 
+        void CheckUsersAndAdjustFocus()
+        {
+            List<User> users = userRepository.GetAllUsers();
+            if (users.Count == 0)
+            {
+                // Assuming 'button' is your "New User" button instance
+                button.IsFocused = true;
+                table.IsFocused = false;
+            }
+            else
+            {
+                button.IsFocused = false;
+                table.IsFocused = true;
+            }
 
-        //Method to redraw the UI
+            // Redraw UI elements to reflect the focus change
+            button.Draw();
+            table.Draw();
+        }
+
         void RedrawUI()
         {
             Console.Clear(); // Clear the console to redraw the UI

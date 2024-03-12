@@ -7,7 +7,7 @@ using ScreenManager;
 
 namespace Screen_Manager_SOP
 {
-    public class Box : ScreenObject
+    public class Box(int left, int top, int width, int height, ConsoleColor color = ConsoleColor.White) : ScreenObject(left, top, width, height)
     {
         public const char TopLeft = '┌';
         public const char TopRight = '┐';
@@ -21,13 +21,7 @@ namespace Screen_Manager_SOP
         public const char BottomMiddle = '┴';
         public const char Cross = '┼';
         public const char Middle = '│'; // Same as Vertical, added for completeness
-        public ConsoleColor Color { get; private set; }
-
-        public Box(int left, int top, int width, int height, ConsoleColor color = ConsoleColor.White, string title = "")
-            : base(left, top, width, height)
-        {
-            Color = color;
-        }
+        public ConsoleColor Color { get; private set; } = color;
 
         public void Draw()
         {

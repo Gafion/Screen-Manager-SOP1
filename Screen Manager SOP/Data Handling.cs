@@ -18,7 +18,7 @@ namespace Screen_Manager_SOP
     }
     public class UserRepository
     {
-        private List<User> users = new List<User>();
+        private readonly List<User> users = [];
 
         public UserRepository()
         {
@@ -32,8 +32,8 @@ namespace Screen_Manager_SOP
 
         public void AddUser(string firstName, string lastName, string emailAddress, string phoneNumber, string address, string title)
         {
-            int newId = users.Any() ? users.Max(u => u.Id) + 1 : 1; // Assign a new ID based on the highest current ID
-            User newUser = new User
+            int newId = users.Count != 0 ? users.Max(u => u.Id) + 1 : 1; // Assign a new ID based on the highest current ID
+            User newUser = new()
             {
                 Id = newId,
                 FirstName = firstName,
@@ -47,17 +47,12 @@ namespace Screen_Manager_SOP
             users.Add(newUser);
         }
 
-        public void RemoveUser(int id)
+        public bool RemoveUser(int id)
         {
-            // Find the user with the given ID
-            User? userToRemove = users.Find(u => u.Id == id);
-
-            // If a user with the given ID is found, remove them from the list
-            if (userToRemove != null)
-            {
-                users.Remove(userToRemove);
-            }
+            int removedCount = users.RemoveAll(u => u.Id == id);
+            return removedCount > 0;
         }
+
     }
 }
 

@@ -6,19 +6,12 @@ using System.Threading.Tasks;
 
 namespace Screen_Manager_SOP
 {
-    internal class Button : ScreenObject
+    internal class Button(int left, int top, int width, int height, string label) : ScreenObject(left, top, width, height)
     {
         public bool IsFocused { get; set; }
-        public string Label { get; private set; }
+        public string Label { get; private set; } = label;
         public ConsoleColor TextColor { get; } = ConsoleColor.White;
         public ConsoleColor BackgroundColor { get; } = ConsoleColor.White;
-
-        // Constructor that positions the button with a top margin of 1 and a right side margin of 2
-        public Button(int left, int top, int width, int height, string label)
-            : base(left, top, width, height)
-        {
-            Label = label;
-        }
 
         public void Draw()
         {
